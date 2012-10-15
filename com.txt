@@ -1,0 +1,3 @@
+avrdude -p m16 -P /dev/ttyUSB3 -c avr109 -b 19200 -v -U flash:w:WatherPump-rtos.hex:i
+
+avra WatherPump-RTOS.asm -l wp.lst -m wpm.map
