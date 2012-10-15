@@ -1,0 +1,94 @@
+
+
+;*******************************************************************
+;1. Текст программы "bin16BCD5"- преобразование 16-битного двоичного
+;значения в упакованный BCD формат
+;*******************************************************************
+;* Количество слов кода            :25 + возврат
+;* Количество циклов               :25/176 (Мин/Макс) + возврат
+;* Использованные младшие регистры :нет
+;* Использованные старшие регистры :4(fbinL,fbinH/tBCD0,tBCD1,tBCD2)
+;* Использованные указатели        :нет
+;*******************************************************************
+
+;***** Регистровые переменные подпрограммы
+
+.def    fbinL   =r16            ;двоичное значение, младший байт
+.def    fbinH   =r17            ;двоичное значение, старший байт
+.def    tBCD0   =r17            ;BCD значение, цифры 1 и 0
+.def    tBCD1   =r18            ;BCD значение, цифры 3 и 2
+.def    tBCD2   =r19            ;BCD значение, цифра 4
+;Примечание: Переменные fbinH и tBCD0 должны размещаться в одном
+;регистре.
+
+;***** Код
+
+bin16BCD5:
+		ldi     tBCD2, -1
+bin16BCD5_loop_1:
+		inc     tBCD2
+		subi    fbinL, low(10000)
+		sbci    fbinH, high(10000)
+		brsh    bin16BCD5_loop_1
+		subi    fbinL, low(-10000)
+		sbci    fbinH, high(-10000)
+		ldi     tBCD1, -0x11
+bin16BCD5_loop_2:
+		subi    tBCD1, -0x10
+		subi    fbinL, low(1000)
+		sbci    fbinH, high(1000)
+		brsh bin16BCD5_loop_2
+		subi    fbinL, low(-1000)
+		sbci    fbinH, high(-1000)
+bin16BCD5_loop_3:
+		inc     tBCD1
+		subi    fbinL, low(100)
+		sbci    fbinH, high(100)
+		brsh bin16BCD5_loop_3
+		subi    fbinL, -100
+		ldi     tBCD0, -0x10
+bin16BCD5_loop_4:
+		subi    tBCD0, -0x10
+		subi    fbinL, 10
+		brsh bin16BCD5_loop_4
+		subi    fbinL, -10
+		add     tBCD0, fbinL
+		ret
+
+
+;выводит 5 ascii символов числА tBCD0 tBCD1 tBCD2 в строку по адресу из Z
+;Z = старший разряд числа, ... Z+4 = младший разряд
+bcd52line:	
+		mov	fbinL,tBCD2		;fbinL - рабочий регистр
+		andi	fbinL,0x0f		;оставляем только мл. нибл (десятки тысяч)
+		ori	fbinL,0x30		;приводим к ascii
+		st	Z+,fbinL		;сохраняем
+
+		mov	fbinL,tBCD1		;
+		lsr	fbinL			;сдвиг старшего ниббла на место левого
+		lsr	fbinL
+		lsr	fbinL
+		lsr	fbinL
+		ori	fbinL,0x30		;приводим к ascii
+		st	Z+,fbinL		;сохраняем		
+
+		mov	fbinL,tBCD1		;fbinL - рабочий регистр
+		andi	fbinL,0x0f		;оставляем только мл. нибл (сотни)
+		ori	fbinL,0x30		;приводим к ascii
+		st	Z+,fbinL		;сохраняем
+
+		mov	fbinL,tBCD0		;
+		lsr	fbinL			;сдвиг старшего ниббла на место левого
+		lsr	fbinL
+		lsr	fbinL
+		lsr	fbinL
+		ori	fbinL,0x30		;приводим к ascii
+		st	Z+,fbinL		;сохраняем		
+
+		mov	fbinL,tBCD0		;fbinL - рабочий регистр
+		andi	fbinL,0x0f		;оставляем только мл. нибл (единицы)
+		ori	fbinL,0x30		;приводим к ascii
+		st	Z+,fbinL		;сохраняем
+
+		ret
+
