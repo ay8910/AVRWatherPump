@@ -1,5 +1,7 @@
 			;.include "lcd4_macro.inc"
 
+
+
 ;=========== LCD Define ==================================================================
 			.equ	DATA_PORT	= PORTB		; LCD Data Port
 			.equ	DATA_PIN	= PINB
