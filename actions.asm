@@ -1,4 +1,5 @@
 ; в этом файле - выполняемые команды меню
+;***
 
 Action1_KeysHandler:		rjmp		loc_A1KH
 
