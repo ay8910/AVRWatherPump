@@ -1,0 +1,8 @@
+compile project:
+avra WatherPump-RTOS.asm -l wp.lst -m wpm.map
+
+programms ATMega16 on Pinboard II:
+avrdude -p m16 -P /dev/ttyUSB3 -c avr109 -b 19200 -v -U flash:w:WatherPump-RTOS.hex:i
+
+
+
